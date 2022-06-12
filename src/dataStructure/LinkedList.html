@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h1>
+f12를 눌러 콘솔을 확인할 것.
+</h1>
+</body>
+<script>
+/**
+ 이 소스는 연결리스트의 이해를 돕기 위한 예제 코드이며
+ 정답은 아닙니다. 참고용으로 사용해주세요.
+ */
+ 
+window.onload = function(){
+	
+	
+	var list = new LinkedList()
+	
+	//데이터를 바꿔가면서 테스트 해볼것.
+	list.insertData(5)
+	list.insertData(3)
+	list.insertData(1)
+	
+	
+	//리스트 표시함수. 콘솔 확인.
+	list.print()
+	
+	//데이터 확인
+	console.log("데이터 3 확인")
+	console.log(list.searchData(3))
+	console.log("데이터 2 확인")
+	console.log(list.searchData(2))
+	
+	//데이터 삭제
+	console.log(list.removeData(0))
+	console.log("리스트 확인")
+	list.print()
+	
+
+}
+
+//노드의 클래스
+class Node {
+	
+	//별도의 기능이 없으므로 생성자로 처리합니다.
+	constructor(data){
+		this.data = data; //데이터값.
+		this.next = null; //다음 노드의 주소값.
+		this.prev = null; //이전 노드의 주소값. => 양방향 연결리스트인 경우 필요합니다.
+	}
+	
+}
+
+//자료구조의 클래스
+class LinkedList {
+	
+	//파라미터가 필요 없으므로 생성자로 처리합니다.
+	constructor(){
+		this.head = null;  //첫번째 리스트의 주소.
+		this.tail = null; //마지막 리스트의 주소.
+		this.numOfData = 0; //현재 크기.
+	}
+	
+	//리스트를 표시해줍니다. - 이 함수는 자유롭게 작성해볼 것.
+	print(){
+		
+		var node = this.head;
+		console.log("head : "+node.data);
+		for(var i = 1; i < this.numOfData; i++){
+			
+			if(node.next != null){
+				node = node.next;
+				
+				if(node == this.tail){
+					console.log("tail : "+node.data)
+					break;
+				} // if
+				console.log(i+" : "+node.data);
+			} // if
+		} // for
+		console.log("총 데이터의 갯수 : "+this.numOfData)
+	}
+	
+	//데이터 추가 함수.
+	insertData(data){
+		
+		//전달받은 데이터를 갖고 있는 노드를 생성합니다.
+		var newNode = new Node(data);
+		
+		//분기가 들어갑니다.
+		//1. 첫번째 노드인 경우
+		//   => newNode는 head가 됩니다.
+		//2. 첫번째 노드가 아닌 경우
+		//   => 맨 마지막 노드에 붙여주면 됩니다.
+		
+		if(this.head == null) { // this.numOfData == 0 으로 해도 무방.
+			this.head = newNode;
+			this.tail = newNode; //노드가 하나인 경우 해당노드가 head이자 tail이 됩니다.
+		}else {
+			//새로운 노드는 기존 마지막 노드의 next가 됨.
+			this.tail.next = newNode;
+			//새 노드의 prev는 기존 tail이 됨.
+			newNode.prev = this.tail;
+			//리스트의 tail의 교체.
+			this.tail = newNode;
+		}
+		
+		//데이터 갯수를 늘려줍니다.
+		(this.numOfData) += 1;		
+	}
+	
+	//원하는 값을 찾아 인덱스를 리턴하는 함수.
+	//중복값이 있는 경우에는 맨 처음 데이터를 리턴합니다.
+	searchData(target){
+		
+		var index = -1; // 리턴할 값.
+		var cursor = null; //노드를 가리킬 변수.
+		
+		for(var i = 0; i < this.numOfData; i++){
+			
+			//i의 값에 따라 cursor에 들어가야 할 노드가 달라집니다.
+			if(i == 0){
+				cursor = this.head;
+			}else if(i+1 == this.numOfData){
+				cursor = this.tail;
+			}else {
+				cursor = cursor.next;
+			}
+			
+			//조건을 찾은 경우.
+			if(cursor.data == target){
+				index = i; //인덱스 위치 기록.
+				break; //반복 종료.
+			}		
+		} // for
+		
+		//위의 로직에 따라, index는 -1 혹은 양수를 리턴합니다.
+		return index;	
+	}
+	
+	
+	//파라미터로 받은 index에 해당하는 노드의 값을 리턴하는 함수.
+	getData(index){
+		//위의 searchData를 참조하여 만들어보도록 합시다.
+	}
+	
+	// 특정 index의 데이터(노드)를 제거하는 함수.
+	// 노드의 제거는 다음예시를 봐주세요.
+	// 원래 리스트의 상태.
+	// [1번노드] - [2번노드] - [3번노드]
+	// 2번노드를 제거하는 경우
+	// [1번노드] - [3번노드]
+	// 이렇게 1번과 3번을 연결해주면, 2번노드는 참조가 없으므로 사라지게 됩니다.
+	// 이 개념을 생각하며 다음 코드를 참조해주세요.
+	removeData(index){
+		
+		//에러처리.
+		if(index >= this.numOfData){
+			console.log("error : out of bounds")
+			return null;
+		}
+		
+		//변수 선언
+		var delNode = this.head;
+		var prev = null; //삭제할 노드의 이전노드를 참조하는 변수.
+		//양방향 연결리스트기 때문에 사실 필요없습니다. 단방향 연결리스트에서는 반드시 필요합니다.
+		
+		var i = 1;
+		
+		while(i <= index){ // for문 으로 해도 됩니다.
+			prev = delNode;
+			delNode = delNode.next;
+			i++;
+		}
+		
+		//반복문 종료시, delNode는 삭제할 노드를 가리키고 있으며
+		//prev노드는 삭제할 노드의 앞 노드를 가리키고 있습니다.
+		//prev - delNode - delNode.next
+		//prev - delNode.next를 연결하면 간단하나
+		//delNode가 head인 경우, tail인 경우를 고려하여 분기처리 합니다.
+		
+		
+		
+		//1. delNode가 head인 경우.
+		if(delNode == this.head){  //index == 0 와 동일.
+			
+			//다음 노드가 있으면 다음노드가 head.
+			if(delNode.next != null){
+				this.head = delNode.next;
+			}else {
+				this.head = null;
+			}
+		//2. delNode가 tail인 경우.
+		}else if(delNode == this.tail){ //index+1 == this.numOfData 와 동일.
+			
+			if(delNode.prev != null){  //위의 prev 변수를 사용해도 무방.
+				this.tail = delNode.prev
+			}else {
+				// 로직상 이 분기에 도달할 일은 없습니다. 이유를 생각해보세요.
+				this.tail = null; 			
+			}
+		//3. 어느 것에도 해당하지 않은 경우.
+		}else {			
+			//삭제할 노드와 삭제할 노드의 다음노드 연결.
+			prev.next = delNode.next; // delNode.prev.next = delNode.next 와 동일.
+			delNode.next.prev = prev;			
+		}
+		
+		//numOfData 1개 빼줍니다.
+		this.numOfData--;
+		
+		//노드를 리턴해도 좋고, 데이터를 리턴해도 좋아요. 사용하는 곳에서 처리하는 방법만 달라집니다.
+		return delNode;
+		
+	}
+	
+
+}
+</script>
+</html>
